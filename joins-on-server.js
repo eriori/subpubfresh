@@ -16,6 +16,13 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
 
+    var insertIds = function(book) {
+      var l = Libraries.findOne({name: book.library_name})
+      Books.update({library_name: l.name}, {$set: {library_id: l._id}}, {multi: true, upsert: true}) 
+    }
+
+
+
   Meteor.startup(function () {
     if (Books.find().count() === 0) {
       books = [
@@ -42,6 +49,11 @@ if (Meteor.isServer) {
       });
     }
 
+    books = Books.find().fetch();
+
+    _.each(books, function(book){
+      insertIds(book);
+    });
 
   });
 }
